@@ -92,3 +92,11 @@ if 'Total_Rural_Urban' in df.columns:
     plt.title('Population Distribution: Rural vs Urban')
     plt.ylabel('')
     plt.show()
+
+plt.figure(figsize=(12, 8))
+corr_cols = ['Persons_Total', 'Males_Total', 'Females_Total', 
+             'Persons_Illiterate', 'Persons_Literate', 'Persons_Graduate']
+sns.heatmap(df[corr_cols].corr(), annot=True, cmap='coolwarm', center=0)
+plt.title('Correlation Matrix of Key Variables')
+plt.tight_layout()
+plt.show()
