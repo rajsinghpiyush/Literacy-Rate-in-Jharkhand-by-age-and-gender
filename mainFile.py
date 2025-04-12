@@ -97,11 +97,16 @@ if 'Total_Rural_Urban' in df.columns:
     plt.ylabel('')
     plt.show()
 
+age_groups = ['7', '8', '9', '10-14', '15-19', '20-24', '25-29', '30-34', '35+']
+age_df = df[df['Age_group'].isin(age_groups)]
+pivot_edu = age_df.pivot_table(
+    index='Age_group',
+    values=edu_cols,
+    aggfunc='sum'
+)
 plt.figure(figsize=(12, 8))
-corr_cols = ['Persons_Total', 'Males_Total', 'Females_Total', 
-             'Persons_Illiterate', 'Persons_Literate', 'Persons_Graduate']
-sns.heatmap(df[corr_cols].corr(), annot=True, cmap='coolwarm', center=0)
-plt.title('Correlation Matrix of Key Variables')
+sns.heatmap(pivot_edu.corr(), annot=True, cmap='coolwarm', center=0)
+plt.title('Correlation Between Age Groups and Education Levels')
 plt.tight_layout()
 plt.show()
 
