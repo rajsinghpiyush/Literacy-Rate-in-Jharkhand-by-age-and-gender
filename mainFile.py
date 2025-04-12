@@ -6,8 +6,12 @@ import seaborn as sns
 
 df = pd.read_excel("C:\\Python CA2\\DDW-2000C-08.xlsx")
 
-# print("First 15 rows of raw data:")
-# print(df.head(15))
+
+print(df.head(15))
+print(df.describe())
+print(df.info())
+
+
 
 df.dropna(how='all', inplace=True)
 df.dropna(axis=1, how='all', inplace = True)
@@ -43,6 +47,8 @@ df = df[(df[numeric_cols] != 0).any(axis=1)]
 
 df['Area_Type'] = df['Area_Name'].apply(lambda x: x.split(' - ')[1] if ' - ' in str(x) else np.nan)
 df['District'] = df['Area_Name'].apply(lambda x: x.split(' - ')[-1].replace('District - ', '') if ' - ' in str(x) and str(x) != 'State - JHARKHAND' else np.nan)
+
+
 
 plt.figure(figsize=(14, 6))
 total_pop = df[df['Age_group'] == 'All ages'].groupby('District')['Persons_Total'].sum().sort_values(ascending=False)
@@ -104,9 +110,14 @@ pivot_edu = age_df.pivot_table(
     values=edu_cols,
     aggfunc='sum'
 )
+gender_gap_cols = [
+    'Males_Literate', 'Females_Literate',
+    'Males_Graduate', 'Females_Graduate',
+    'Males_Matric_Secondary', 'Females_Matric_Secondary'
+]
 plt.figure(figsize=(12, 8))
-sns.heatmap(pivot_edu.corr(), annot=True, cmap='coolwarm', center=0)
-plt.title('Correlation Between Age Groups and Education Levels')
+sns.heatmap(df[gender_gap_cols].corr(), annot=True, cmap='coolwarm', center=0)
+plt.title('Gender Gap in Education (Correlation)')
 plt.tight_layout()
 plt.show()
 
@@ -117,5 +128,23 @@ grad_df.plot(kind='bar')
 plt.title('Top Districts by Graduate Population')
 plt.ylabel('Graduate Count')
 plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+plt.figure(figsize=(12, 6))
+age_groups = ['7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20-24', '25-29', '30-34', '35-39', '40-44', '45-49', '50-54', '55-59', '60-64', '65-69']
+line_df = df[(df['Age_group'].isin(age_groups)) & (df['Total_Rural_Urban'] == 'Total')]
+line_df['Literacy_Rate_Persons'] = (line_df['Persons_Literate'] / line_df['Persons_Total'] * 100)
+line_df['Literacy_Rate_Males'] = (line_df['Males_Literate'] / line_df['Males_Total'] * 100)
+line_df['Literacy_Rate_Females'] = (line_df['Females_Literate'] / line_df['Females_Total'] * 100)
+line_agg = line_df.groupby('Age_group')[['Literacy_Rate_Males', 'Literacy_Rate_Females']].mean().reindex(age_groups)
+plt.plot(line_agg.index, line_agg['Literacy_Rate_Males'], marker='o', label='Males', color='blue')
+plt.plot(line_agg.index, line_agg['Literacy_Rate_Females'], marker='o', label='Females', color='red')
+plt.title('Literacy Rate by Age Group (Males vs. Females)')
+plt.xlabel('Age Group')
+plt.ylabel('Literacy Rate (%)')
+plt.xticks(rotation=45)
+plt.legend()
+plt.grid(True, linestyle='--', alpha=0.7)
 plt.tight_layout()
 plt.show()
